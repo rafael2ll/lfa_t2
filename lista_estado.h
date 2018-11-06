@@ -22,6 +22,9 @@ int ultimo_listaE(ListaE);
 
 int inserir_estado_transicao(ListaE l, int estado, int simbolo, int estado_para);
 
+void exportar_estados(FILE *f, ListaE le);
+
+void exportar_matriz_transicao(FILE *f, ListaE le, char *alfabeto);
 void print(ListaE le, int alf_c);
 
 #endif

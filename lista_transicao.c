@@ -18,11 +18,17 @@ void inserir_transicao(ListaT l, int t) {
     l->prox = no;
 }
 
-void print_transicoes(ListaT lt) {
+void print_transicoes(FILE *f, ListaT lt) {
     ListaT aux = lt->prox;
-    while (aux != NULL) {
-        printf("%d, ", aux->t);
-        aux = aux->prox;
+    if (aux != NULL) {
+        fprintf(f, "{");
+        while (aux->prox != NULL) {
+            fprintf(f, "q%d,", aux->t);
+            aux = aux->prox;
+        }
+        fprintf(f, "q%d} ", aux->t);
+    } else {
+        fprintf(f, "{} ");
     }
 }
 

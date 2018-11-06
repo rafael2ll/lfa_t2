@@ -100,10 +100,33 @@ void print(ListaE le, int alf_c) {
         printf("----%d----\n", aux->estado);
         for (i = 0; i <= alf_c; i++) {
             printf("Lendo %d:{", i);
-            print_transicoes(aux->transicoes[i]);
+            //    print_transicoes(aux->transicoes[i]);
             printf("}\n");
         }
         aux = aux->prox;
         printf("\n");
+    }
+}
+
+void exportar_estados(FILE *f, ListaE le) {
+    ListaE aux = le->prox;
+    fprintf(f, "{");
+    while (aux->prox != NULL) {
+        fprintf(f, "q%d,", aux->estado);
+        aux = aux->prox;
+    }
+    fprintf(f, "q%d}", aux->estado);
+}
+
+void exportar_matriz_transicao(FILE *f, ListaE le, char *alfabeto) {
+    ListaE aux = le->prox;
+    int i;
+    while (aux != NULL) {
+        fprintf(f, "q%d ", aux->estado);
+        for (i = 0; i <= strlen(alfabeto); i++) {
+            print_transicoes(f, aux->transicoes[i]);
+        }
+        fprintf(f, "\n");
+        aux = aux->prox;
     }
 }

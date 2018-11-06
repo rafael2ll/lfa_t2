@@ -1,23 +1,26 @@
 #include "automato_helper.h"
 
 
-void gera_automato(Arvore arrv) {
+void gera_automato(char *expressao_regular) {
     Arvore arv = criar_arvore();
     int contador = 0;
-    char alfabeto[] = {'0', '1'};
-    char *expressao_regular = ".*+011+10";
+    char *alfabeto = gerar_alfabeto(expressao_regular);
     int i = 0, alf_c = strlen(alfabeto);
     for (i = 0; i < strlen(expressao_regular); i++) {
         inserir_profundidade(&arv, alfabeto, expressao_regular[i]);
     }
+
     print_arvore(arv);
+    printf("\n");
 
     Pilha pilha;
     ListaE matriz_transicao;
     criar_listaEstados(&matriz_transicao);
     char simb;
+
     while (arv != NULL) {
         simb = busca_profundidade(&arv);
+        printf("%c ", simb);
         if (simb != '\0')
             switch (simb) {
                 case '+' :
@@ -33,7 +36,10 @@ void gera_automato(Arvore arrv) {
                     empilha(&pilha, simbolo(indexOf(simb, alfabeto), &contador, alf_c));
             }
     }
-    print(desempilha(&pilha), alf_c);
+    matriz_transicao = desempilha(&pilha);
+    print(matriz_transicao, alf_c);
+
+    gerar_arquivo(matriz_transicao, alfabeto);
 }
 
 ListaE simbolo(int simbolo, int *contador, int alf_c) {
@@ -113,8 +119,47 @@ ListaE fechamento(ListaE matriz_transicao, int *contador, int alf_c) {
 }
 
 
+void gerar_arquivo(ListaE le, char *alfabeto) {
+    FILE *automato = fopen("automato", "w");
+    exportar_estados(automato, le);
+    fprintf(automato, "\n");
+    exportar_alfabeto(automato, alfabeto);
+    fprintf(automato, "\n");
+    fprintf(automato, "{q%d}\n", ultimo_listaE(le));
+    fprintf(automato, "{q%d}\n", primeiro_listaE(le));
+
+    exportar_matriz_transicao(automato, le, alfabeto);
+}
+
+void exportar_alfabeto(FILE *f, char *alfabeto) {
+    int i;
+    fprintf(f, "{");
+    for (i = 0; i < strlen(alfabeto) - 1; i++) fprintf(f, "%c,", alfabeto[i]);
+    fprintf(f, "%c}", alfabeto[i]);
+}
+
+char *gerar_alfabeto(char *exp) {
+    int i, alf_c = 0;
+    char *aux = malloc(strlen(exp));
+    for (i = 0; i < strlen(exp); i++) {
+        if (exp[i] != '+' && exp[i] != '*' && exp[i] != '.' && indexOf(exp[i], aux) == -1) {
+            aux[alf_c++] = exp[i];
+        }
+    }
+
+    char *alfabeto = malloc(alf_c);
+    printf("Alfabeto: ");
+    for (i = 0; i < alf_c; i++) {
+        printf("%c ", aux[i]);
+        alfabeto[i] = aux[i];
+    }
+    printf("\n");
+    free(aux);
+    return alfabeto;
+}
+
 int indexOf(char simbolo, char *alfabeto) {
     int i = 0;
     for (i = 0; i < strlen(alfabeto); i++) if (alfabeto[i] == simbolo) break;
-    return i;
+    return i < strlen(alfabeto) ? i : -1;
 }
